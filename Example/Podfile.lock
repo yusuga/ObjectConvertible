@@ -1,0 +1,24 @@
+PODS:
+  - ObjectConvertible (0.1.0)
+  - Realm (2.10.1):
+    - Realm/Headers (= 2.10.1)
+  - Realm/Headers (2.10.1)
+  - RealmSwift (2.10.1):
+    - Realm (= 2.10.1)
+
+DEPENDENCIES:
+  - ObjectConvertible (from `../`)
+  - RealmSwift
+
+EXTERNAL SOURCES:
+  ObjectConvertible:
+    :path: ../
+
+SPEC CHECKSUMS:
+  ObjectConvertible: ea232cb783d87b2e905819bacb882de5d31df70b
+  Realm: fc7a317a5c2c9ba91f5f235ede4e2ea76e9eba0c
+  RealmSwift: 505ed6c15942a2e76f5cfa78a8667cfa997ee75b
+
+PODFILE CHECKSUM: a8a47252962054ad56659965fccf2a97897fef1c
+
+COCOAPODS: 1.3.1

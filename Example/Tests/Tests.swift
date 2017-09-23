@@ -1,29 +1,77 @@
 import UIKit
 import XCTest
 import ObjectConvertible
+import RealmSwift
 
 class Tests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+        Realm.Configuration.defaultConfiguration.inMemoryIdentifier = UUID().uuidString
     }
     
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
+    func testStructToRealmObject() {
+        let obj = Object(JSON: JSONCreator.json())
+        let realmObj = try! obj.convertToDAO()
+        XCTAssertTrue(obj.equalValues(to: realmObj))
     }
     
-    func testExample() {
-        // This is an example of a functional test case.
-        XCTAssert(true, "Pass")
+    func testUnmanagedRealmObjectToStruct() {
+        let realmObj = RealmObject(value: JSONCreator.json())
+        let obj = try! realmObj.convertToPOSO()
+        XCTAssertTrue(realmObj.equalValues(to: obj))
     }
     
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure() {
-            // Put the code you want to measure the time of here.
+    func testManagedRealmObjectToStruct() {
+        let realmObj = RealmObject(value: JSONCreator.json())
+        
+        let realm = try! Realm()
+        try! realm.write {
+            realm.add(realmObj)
         }
+        
+        let obj = try! realmObj.convertToPOSO()
+        XCTAssertTrue(realmObj.equalValues(to: obj))
+    }
+    
+    func testManagedRealmObjectToUnmanagedRealmObject() {
+        let realmObj = RealmObject(value: JSONCreator.json())
+        
+        let realm = try! Realm()
+        try! realm.write {
+            realm.add(realmObj)
+        }
+        
+        let dtoRealmObj = try! realmObj.convertToDTO()
+        XCTAssertNil(dtoRealmObj.realm)
+        XCTAssertTrue(realmObj.equalValues(to: dtoRealmObj))
+    }
+    
+    func testNestedRealmObject() {
+        let person = Person(value: [
+            "name" : "Sugawara",
+            "cat" : ["name" : "Rao"]])
+        
+        XCTAssertNil(person.realm)
+        XCTAssertNil(person.cat!.realm)
+        
+        let realm = try! Realm()
+        try! realm.write {
+            realm.add(person)
+        }
+        
+        XCTAssertNotNil(person.realm)
+        XCTAssertNotNil(person.cat!.realm)
+        
+        let dtoPerson = try! person.convertToDTO()
+        XCTAssertNil(dtoPerson.realm)
+        XCTAssertNil(dtoPerson.cat!.realm) // OK😊
+        XCTAssertEqual(person.name, dtoPerson.name)
+        XCTAssertEqual(person.cat!.name, dtoPerson.cat!.name)
+    }
+    
+    func testTransformFailed() {
+        XCTAssertThrowsError(try Person().convert() as RealmObject) // Swift.DecodingError.keyNotFound
     }
     
 }

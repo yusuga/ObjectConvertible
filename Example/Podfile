@@ -1,6 +1,7 @@
 use_frameworks!
+
 target 'ObjectConvertible_Tests' do
   pod 'ObjectConvertible', :path => '../'
   
-  
+  pod 'RealmSwift'
 end
